@@ -1,0 +1,68 @@
+[
+  {
+    "name": "docker_deploy",
+    "keywords": ["docker", "部署", "deploy", "容器", "构建", "镜像", "dockerfile", "container", "compose"],
+    "description": "Docker 容器化部署指南：构建、运行、编排",
+    "doc": "Docker部署速查手册.txt"
+  },
+  {
+    "name": "python_env",
+    "keywords": ["python", "环境", "安装", "pip", "venv", "虚拟环境", "依赖", "版本", "报错"],
+    "description": "Python 开发环境搭建指南",
+    "doc": "Python开发环境搭建指南.txt"
+  },
+  {
+    "name": "k8s_deploy",
+    "keywords": ["k8s", "kubernetes", "集群", "pod", "deployment", "helm", "hpa", "ingress", "扩容"],
+    "description": "Kubernetes 部署运维手册",
+    "doc": "K8s部署运维手册.txt"
+  },
+  {
+    "name": "cicd",
+    "keywords": ["ci", "cd", "jenkins", "github actions", "pipeline", "自动化", "发布", "gitlab", "构建"],
+    "description": "CI/CD 流水线配置指南",
+    "doc": "CI_CD流水线配置指南.txt"
+  },
+  {
+    "name": "code_standard",
+    "keywords": ["代码", "规范", "java", "python", "命名", "格式", "git", "commit", "分支", "review"],
+    "description": "公司内部代码规范与开发流程",
+    "doc": "代码规范与开发流程.txt"
+  },
+  {
+    "name": "dev_process",
+    "keywords": ["流程", "开发", "需求", "设计", "测试", "上线", "灰度", "阶段"],
+    "description": "产品研发流程规范",
+    "doc": "产品研发流程规范.txt"
+  },
+  {
+    "name": "db_design",
+    "keywords": ["数据库", "SQL", "索引", "慢查询", "优化", "MySQL", "备份", "explain", "join"],
+    "description": "数据库设计与优化指南：表设计、索引规范、慢查询排查",
+    "doc": "数据库设计与优化指南.txt"
+  },
+  {
+    "name": "api_design",
+    "keywords": ["API", "接口", "RESTful", "响应格式", "分页", "版本", "安全", "token", "认证", "限流"],
+    "description": "API接口设计规范：RESTful URL设计、统一响应格式",
+    "doc": "API接口设计规范.txt"
+  },
+  {
+    "name": "troubleshooting",
+    "keywords": ["故障", "排查", "报错", "500", "超时", "OOM", "内存", "磁盘", "回滚", "应急"],
+    "description": "故障排查SOP：服务不可用、响应慢、内存溢出的处理流程",
+    "doc": "故障排查SOP手册.txt"
+  },
+  {
+    "name": "nginx",
+    "keywords": ["nginx", "反向代理", "HTTPS", "SSL", "负载均衡", "限流", "upstream", "proxy"],
+    "description": "Nginx反向代理配置指南",
+    "doc": "Nginx反向代理配置指南.txt"
+  },
+  {
+    "name": "redis",
+    "keywords": ["redis", "缓存", "cache", "session", "排行榜", "pubsub", "穿透", "雪崩"],
+    "description": "Redis缓存使用指南：数据类型、缓存策略、性能监控",
+    "doc": "Redis缓存使用指南.txt"
+  }
+]
