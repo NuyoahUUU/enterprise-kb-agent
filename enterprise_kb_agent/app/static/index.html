@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>企业知识库 Agent</title>
+    <link rel="stylesheet" href="/static/styles.css?v=20260531-chat" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <h1>企业知识库 Agent</h1>
+          <p id="statusText">连接中</p>
+        </div>
+        <a class="docs-link" href="/docs">API</a>
+      </header>
+
+      <main class="workspace" id="workspace">
+        <aside class="left-panel" id="leftPanel">
+          <!-- 对话历史（可折叠） -->
+          <section class="collapsible-section" id="sessionSection" style="flex: 0 0 var(--session-h);">
+            <button class="section-toggle" data-target="sessionsBody">
+              <span class="toggle-icon">▾</span>
+              <h2>对话历史</h2>
+            </button>
+            <div id="sessionsBody" class="section-body">
+              <div class="section-actions">
+                <button id="newSessionBtn" type="button">新对话</button>
+              </div>
+              <div id="sessionList" class="session-list" aria-live="polite">
+                <div class="muted-line">暂无历史</div>
+              </div>
+            </div>
+          </section>
+
+          <div class="h-resize-handle" id="sessionDocHandle"></div>
+
+          <!-- 文档列表（可折叠，管理员可见） -->
+          <section class="collapsible-section" id="docSection" style="flex: 1 1 auto;">
+            <button class="section-toggle" data-target="docsBody">
+              <span class="toggle-icon">▾</span>
+              <h2>文档</h2>
+            </button>
+            <div id="docsBody" class="section-body">
+              <select id="librarySelect" class="library-select" style="width:100%;margin-bottom:6px;">
+                <option value="enterprise">企业库</option>
+                <option value="research">研究库</option>
+              </select>
+              <label class="upload-zone" for="fileInput">
+                <span>选择文件</span>
+                <input id="fileInput" type="file" accept=".txt,.pdf,.md,.csv,.json" multiple />
+              </label>
+              <div id="uploadState" class="muted-line">未选择文档</div>
+              <div id="documentList" class="document-list" aria-live="polite"></div>
+            </div>
+          </section>
+        </aside>
+
+        <div class="resize-handle" data-resize="left"></div>
+
+        <section class="chat-panel" id="chatPanel">
+          <div id="chatMessages" class="chat-messages" aria-live="polite"></div>
+          <form id="chatForm" class="chat-form">
+            <textarea
+              id="questionInput"
+              rows="3"
+              placeholder="输入问题"
+              aria-label="输入问题"
+            ></textarea>
+            <div class="chat-actions">
+              <select id="modelSelect" class="model-select" title="选择模型"></select>
+              <select id="permissionMode" class="permission-select" title="本地操作权限">
+                <option value="read_only">只读</option>
+                <option value="approve_execute">批准</option>
+              </select>
+              <button id="thinkToggle" type="button" class="think-toggle on" title="思考模式">思考</button>
+              <span class="topk-wrap" title="检索数量 Top K">
+                <input id="topKInput" type="number" min="1" max="10" value="4" />
+              </span>
+              <button id="sendBtn" type="submit" class="send-btn">发送</button>
+            </div>
+          </form>
+        </section>
+
+        <div class="resize-handle" data-resize="right"></div>
+
+        <aside class="insight-panel" id="insightPanel">
+          <section>
+            <h2>当前会话</h2>
+            <dl>
+              <dt>对话</dt>
+              <dd id="sessionId">新对话</dd>
+              <dt>检索范围</dt>
+              <dd id="activeDocument">全部文档</dd>
+              <dt>会话文档</dt>
+              <dd id="sessionDocs">-</dd>
+              <dt>工具</dt>
+              <dd id="usedTools">-</dd>
+            </dl>
+          </section>
+          <section class="doc-content-section">
+            <h2 id="docContentTitle">文档内容</h2>
+            <div id="docContentView" class="doc-content-view">
+              <div class="muted-line">点击左侧文档查看内容</div>
+            </div>
+          </section>
+          <section class="admin-only">
+            <h2>来源</h2>
+            <div id="sourceList" class="source-list"></div>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <script src="/static/app.js?v=20260531-chat"></script>
+  </body>
+</html>
