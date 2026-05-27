@@ -1,0 +1,57 @@
+CI/CD 流水线配置指南
+适用：企业知识库 Agent 平台
+日期：2026-05
+
+一、GitHub Actions 配置
+```yaml
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install -r requirements.txt
+      - run: pytest -q --cov=app/
+      - run: black --check .
+```
+
+二、Jenkins Pipeline
+```groovy
+pipeline {
+  agent any
+  stages {
+    stage('Checkout') { steps { git '...' } }
+    stage('Test') { steps { sh 'pytest -q' } }
+    stage('Build Image') { steps { sh 'docker build -t kb-agent .' } }
+    stage('Deploy Staging') { steps { sh 'kubectl apply -f k8s/staging/' } }
+    stage('Smoke Test') { steps { sh 'curl -f http://staging:8000/health' } }
+  }
+}
+```
+
+三、GitLab CI 配置
+```yaml
+stages:
+  - test
+  - build
+  - deploy
+
+pytest:
+  stage: test
+  script: pip install -r requirements.txt && pytest -q
+
+docker:
+  stage: build
+  script: docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA .
+```
+
+四、发布流程
+1. 提交 PR → 自动触发单元测试 + 代码扫描
+2. Code Review 通过 → 合并到 main
+3. main 分支自动构建镜像 → 推送到 Registry
+4. 手动触发部署到 Staging → 冒烟测试
+5. 创建 Release Tag → 触发生产部署
+6. 生产部署后监控 30 分钟 → 确认稳定

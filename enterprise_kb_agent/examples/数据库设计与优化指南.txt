@@ -1,0 +1,51 @@
+数据库设计与优化指南 v2.0
+适用：MySQL / PostgreSQL
+日期：2026-05
+
+一、表设计原则
+1. 每表必须有主键（推荐 BIGINT 自增），禁止使用业务字段作主键
+2. 所有表统一包含 create_time、update_time（datetime，自动维护）
+3. 字段尽量 NOT NULL，设置合理的 DEFAULT 值
+4. VARCHAR 必须指定长度，禁止滥用 TEXT（超过 5000 字符才用 TEXT）
+5. 金额字段使用 DECIMAL(12,2)，严禁 FLOAT/DOUBLE
+6. 状态字段用 TINYINT + 注释，禁止用字符串存状态
+
+二、索引规范
+-- 单列索引
+CREATE INDEX idx_user_status ON users(status);
+-- 联合索引（最左前缀原则）
+CREATE INDEX idx_order_user_time ON orders(user_id, create_time);
+-- 唯一索引
+CREATE UNIQUE INDEX uk_user_email ON users(email);
+-- 全文索引（MySQL 5.7+）
+ALTER TABLE articles ADD FULLTEXT INDEX ft_title_content(title, content);
+
+索引原则：
+- WHERE / JOIN / ORDER BY 的列建索引
+- 联合索引列数 ≤ 3，区分度高的列放前面
+- 避免在索引列上使用函数（WHERE DATE(create_time) = '2026-01-01'）
+- 定期分析慢查询日志，清理无用索引
+
+三、查询优化
+1. SELECT 只取需要的列，禁止 SELECT *
+2. 大表分页用游标方式（WHERE id > last_id LIMIT 20）
+3. JOIN 小表驱动大表，关联字段必须建索引
+4. 子查询能转 JOIN 就转 JOIN
+5. 批量操作使用 INSERT INTO ... VALUES (...), (...), (n) 合并
+6. 长事务拆成多个短事务，降低锁等待
+
+四、慢查询排查
+-- 开启慢查询日志
+SET GLOBAL slow_query_log = ON;
+SET GLOBAL long_query_time = 0.5;  -- 超过 0.5 秒记录
+
+-- 分析工具
+EXPLAIN SELECT ...;           -- 查看执行计划
+pt-query-digest slow.log;     -- Percona 慢查询分析
+
+五、备份策略
+# 全量备份（每天凌晨 2 点）
+0 2 * * * mysqldump -uroot -p db_name | gzip > /backup/db_$(date +%Y%m%d).sql.gz
+
+# 增量备份（每小时）
+# 开启 binlog: log_bin = /var/lib/mysql/mysql-bin

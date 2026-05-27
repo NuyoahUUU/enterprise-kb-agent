@@ -1,0 +1,19 @@
+Title: Retrieval-Augmented Research Assistant for Scientific Paper Understanding
+
+Abstract
+Scientific papers contain dense background, methods, experiments, and quantitative results. This paper presents a retrieval-augmented research assistant that combines document parsing, semantic chunk retrieval, and large language model generation. The goal is to help users ask questions about uploaded papers and obtain grounded answers with source snippets.
+
+1. Introduction
+Researchers often need to read many papers quickly. Traditional keyword search is insufficient because users may ask conceptual questions such as why a method works, how the experiments were designed, or which metrics were reported. A RAG-based assistant can index paper chunks into a vector database and retrieve relevant evidence before generation.
+
+2. Method
+Our method parses PDF and TXT files into raw text, splits the text into overlapping chunks, and encodes each chunk with a multilingual sentence embedding model. The embeddings are stored in ChromaDB. During question answering, the system retrieves top-k relevant chunks, builds a context prompt, and sends the prompt to an Ollama local model such as qwen3:4b. The system also includes simple tool calling for summarization, keyword extraction, and experimental metric extraction.
+
+3. Experiments
+We evaluate the assistant on a small benchmark of 120 scientific questions from machine learning papers. The retrieval module achieves Recall@5 of 91.3% and Precision@5 of 78.6%. For answer correctness, the RAG pipeline obtains an Accuracy of 86.4%, while a baseline without retrieval obtains 62.7%. The metric extraction tool identifies Accuracy, F1, mIoU, OA, Precision, and Recall values from result sections. On a document-level extraction set, it reaches F1-score of 82.1%, Precision of 84.5%, and Recall of 79.8%. In a remote sensing subset, the method reports mIoU of 74.2% and OA of 93.5%.
+
+4. Results and Discussion
+The experiment shows that retrieval improves faithfulness and reduces hallucination. Multi-turn session memory also improves follow-up questions because the assistant can reuse the previous dialogue context. Tool calling is useful for structured tasks where users do not need a free-form answer.
+
+5. Conclusion
+This paper demonstrates that a lightweight FastAPI, ChromaDB, and Ollama stack can support practical scientific document understanding. The system can be extended with stronger embeddings, reranking, citation highlighting, and online model providers such as OpenAI, DeepSeek, or Qwen.

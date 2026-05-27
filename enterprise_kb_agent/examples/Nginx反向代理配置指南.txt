@@ -1,0 +1,72 @@
+Nginx 反向代理配置指南
+适用：企业内网服务对外暴露
+日期：2026-04
+
+一、基础配置
+server {
+    listen 80;
+    server_name kb-agent.internal.com;
+
+    # 代理到 FastAPI
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # WebSocket / SSE 特殊配置
+    location /chat/stream {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_buffering off;       # SSE 必须关缓冲
+        proxy_cache off;
+        proxy_read_timeout 300s;   # 长连接超时
+    }
+}
+
+二、HTTPS 配置
+server {
+    listen 443 ssl;
+    server_name kb-agent.internal.com;
+
+    ssl_certificate     /etc/nginx/ssl/kb-agent.crt;
+    ssl_certificate_key /etc/nginx/ssl/kb-agent.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+    }
+}
+
+三、限流配置
+# 定义限流区域（10MB 内存，按客户端 IP限流）
+limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
+
+server {
+    location /api/ {
+        limit_req zone=api_limit burst=20 nodelay;
+        proxy_pass http://127.0.0.1:8000;
+    }
+}
+
+四、健康检查与负载均衡
+upstream kb_agent_cluster {
+    server 127.0.0.1:8001 weight=3;
+    server 127.0.0.1:8002 weight=2;
+}
+
+server {
+    location / {
+        proxy_pass http://kb_agent_cluster;
+        health_check interval=10s;
+    }
+}
+
+五、常用命令
+nginx -t                    # 检查配置
+nginx -s reload             # 热加载
+tail -f /var/log/nginx/access.log

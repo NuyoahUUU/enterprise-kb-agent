@@ -1,0 +1,53 @@
+Redis 缓存使用指南 v1.0
+日期：2026-05
+
+一、基础操作
+# 字符串
+SET user:1001 '{"name":"张三"}' EX 3600
+GET user:1001
+
+# 哈希
+HSET session:abc123 user_id 1001 role admin
+HGETALL session:abc123
+EXPIRE session:abc123 1800
+
+# 列表（消息队列）
+LPUSH task_queue "job_001"
+RPOP task_queue
+
+# 集合（去重、标签）
+SADD user:1001:tags "vip" "new"
+SINTER user:1001:tags user:1002:tags
+
+# 有序集合（排行榜）
+ZADD leaderboard 9850 "player_a"
+ZREVRANGE leaderboard 0 9 WITHSCORES
+
+二、缓存策略
+1. Cache-Aside（旁路缓存）— 最常用
+   - 读：先查缓存 → 未命中查DB → 写回缓存 + 设 TTL
+   - 写：先写DB → 删除缓存
+
+2. 缓存穿透防护（大量请求查不存在的数据）
+   - 布隆过滤器
+   - 空值缓存（TTL 60s）
+
+3. 缓存雪崩防护（大量缓存同时过期）
+   - TTL 加随机偏移（±30%）
+   - 多级缓存（本地 Caffeine + Redis）
+
+4. 热点 Key 防护
+   - 多副本拆分（key_1, key_2, key_3）
+   - 本地缓存 + Redis 双层
+
+三、性能监控
+redis-cli INFO stats
+redis-cli --latency          # 延迟测试
+redis-cli --bigkeys          # 大Key扫描
+redis-cli MONITOR            # 实时监控
+
+四、生产配置
+maxmemory 2gb
+maxmemory-policy allkeys-lru  # 内存满时淘汰策略
+save 900 1                    # RDB 持久化
+appendonly yes                # AOF 持久化

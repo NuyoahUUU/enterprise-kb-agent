@@ -1,0 +1,59 @@
+API 接口设计规范 v2.0
+适用：RESTful API / FastAPI / Spring Boot
+日期：2026-04
+
+一、URL 命名
+GET    /api/users              # 列表
+GET    /api/users/{id}          # 详情
+POST   /api/users               # 创建
+PUT    /api/users/{id}          # 全量更新
+PATCH  /api/users/{id}          # 部分更新
+DELETE /api/users/{id}          # 删除
+POST   /api/users/{id}/activate # 自定义动作
+
+原则：
+- 全部小写，单词间用连字符
+- 资源名用名词复数
+- 三级以内嵌套（/api/users/{id}/orders）
+
+二、统一响应格式
+{
+  "code": 200,
+  "message": "success",
+  "data": { ... },
+  "timestamp": "2026-05-30T18:00:00+08:00"
+}
+
+错误响应：
+{
+  "code": 400,
+  "message": "用户名不能为空",
+  "data": null
+}
+
+三、分页规范
+请求：GET /api/users?page=1&page_size=20&sort=-created_at
+响应：
+{
+  "code": 200,
+  "data": {
+    "total": 150,
+    "page": 1,
+    "page_size": 20,
+    "total_pages": 8,
+    "items": [...]
+  }
+}
+
+四、版本管理
+- URL 前缀：/api/v1/users
+- 兼容策略：新增字段不破坏旧客户端
+- 废弃字段标记 @deprecated，保留 2 个大版本后删除
+
+五、安全规范
+1. 所有接口必须 HTTPS（生产环境）
+2. 敏感接口加频率限制（登录 5次/分钟，普通 API 100次/分钟）
+3. 请求参数必须校验（Pydantic / @Valid）
+4. SQL 查询必须参数化，禁止字符串拼接
+5. 响应中不暴露内部错误堆栈
+6. API Key 通过 Header 传递：Authorization: Bearer <token>

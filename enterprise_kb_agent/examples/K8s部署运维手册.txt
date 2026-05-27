@@ -1,0 +1,51 @@
+Kubernetes 部署运维手册 v1.0
+适用：团队内部服务部署
+日期：2026-05
+
+一、集群信息
+- 环境：自建 K8s 集群（3 master + 5 worker）
+- K8s 版本：1.29
+- 容器运行时：containerd
+- 网络插件：Calico
+- 存储：Longhorn（分布式块存储）
+
+二、应用部署流程
+```bash
+# 1. 构建并推送镜像
+docker build -t registry.internal.com/kb-agent:v1.2.0 .
+docker push registry.internal.com/kb-agent:v1.2.0
+
+# 2. 应用配置
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+kubectl apply -f k8s/ingress.yaml
+
+# 3. 验证部署
+kubectl get pods -l app=kb-agent
+kubectl logs -f deployment/kb-agent
+
+# 4. 回滚
+kubectl rollout undo deployment/kb-agent
+```
+
+三、资源配额
+- requests: CPU 500m, Memory 512Mi
+- limits: CPU 2, Memory 2Gi
+- HPA: min 2, max 8, CPU 70% 触发扩容
+
+四、健康检查
+```yaml
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 30
+  periodSeconds: 10
+```
+
+五、监控告警
+- Prometheus 采集 /metrics 端点
+- Grafana Dashboard ID: KB-Agent-Overview
+- 告警规则：P99 延迟 > 3s 触发 PagerDuty
+- 日志：Filebeat → Elasticsearch → Kibana

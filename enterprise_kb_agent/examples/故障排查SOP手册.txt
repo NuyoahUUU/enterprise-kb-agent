@@ -1,0 +1,54 @@
+故障排查标准操作流程 v1.0
+日期：2026-05
+
+一、服务不可用
+1. 检查进程是否存活
+   ps aux | grep "app"        # 进程检查
+   systemctl status kb-agent  # systemd 服务状态
+2. 检查端口是否监听
+   lsof -i :8000
+   netstat -tlnp | grep 8000
+3. 查看最近日志
+   tail -200 /var/log/kb-agent/app.log
+   journalctl -u kb-agent --since "10 min ago"
+4. 检查资源使用
+   top -p $(pgrep -f "app")   # CPU
+   free -h                     # 内存
+   df -h                       # 磁盘
+
+二、响应慢（P99 > 3s）
+1. 检查数据库连接池
+   SHOW PROCESSLIST;
+   SELECT * FROM information_schema.INNODB_TRX;
+2. 检查慢查询
+   pt-query-digest /var/log/mysql/slow.log
+3. 检查缓存命中率
+   redis-cli INFO stats | grep hit
+4. 检查外部 API 调用耗时
+   tail -100 app.log | grep "response_time"
+
+三、内存溢出（OOM）
+1. 确认 OOM Killer 记录
+   dmesg | grep -i "out of memory"
+2. 导出堆转储（Java）
+   jmap -dump:live,format=b,file=heap.hprof <pid>
+3. 分析大对象
+   jvisualvm 或 Eclipse MAT
+
+四、磁盘满
+1. 定位大目录
+   du -sh /* 2>/dev/null | sort -rh | head -20
+2. 清理日志
+   find /var/log -name "*.log" -mtime +30 -delete
+3. Docker 清理
+   docker system prune -a -f
+4. 扩容或迁移
+
+五、回滚流程
+1. 确认回滚版本（git tag 或镜像 tag）
+2. 备份当前数据库
+3. 执行回滚：
+   kubectl rollout undo deployment/kb-agent
+   或 systemctl stop kb-agent && 启动旧版本
+4. 验证：curl http://localhost:8000/health
+5. 通知相关方
