@@ -132,8 +132,6 @@ class VectorStoreService:
         (settings.chroma_db_dir / ".gitkeep").touch(exist_ok=True)
 
 
-import threading as _threading
-
 _vectorstore_service: VectorStoreService | None = None
 _vs_lock = _threading.Lock()
 

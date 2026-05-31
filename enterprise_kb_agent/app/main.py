@@ -101,7 +101,8 @@ async def value_error_handler(request: Request, exc: ValueError):
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
+    logger.exception("Unhandled exception on %s %s", request.method, request.url.path)
     return JSONResponse(
         status_code=500,
-        content=error_response(message=str(exc), code=500),
+        content=error_response(message="服务器内部错误，请稍后重试", code=500),
     )

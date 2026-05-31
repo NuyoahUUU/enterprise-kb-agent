@@ -29,8 +29,6 @@ class ChatResponseData(BaseModel):
     sources: list[SourceChunk] = Field(default_factory=list)
     tools: list[str] = Field(default_factory=list)
     tool_results: Optional[Any] = None
-    tool_plan: Optional[Any] = None
-    rewritten_question: Optional[str] = None
     operation_request: Optional[Any] = None
 
 
